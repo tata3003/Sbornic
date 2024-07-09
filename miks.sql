@@ -83,6 +83,44 @@ SELECT name
 FROM artists
 WHERE name NOT LIKE '% %';
 
+-- 1. Количество исполнителей в каждом жанре
+SELECT g.name AS genre, COUNT(ag.artist_id) AS artist_count
+FROM genres g
+JOIN artist_genre ag ON g.genre_id = ag.genre_id
+GROUP BY g.name;
+
+-- 2. Количество треков, вошедших в альбомы 2019–2020 годов
+SELECT COUNT(t.track_id) AS track_count
+FROM tracks t
+JOIN albums a ON t.album_id = a.album_id
+WHERE a.release_year BETWEEN 2019 AND 2020;
+
+-- 3. Средняя продолжительность треков по каждому альбому
+SELECT a.title AS album, AVG(t.duration) AS avg_duration
+FROM albums a
+JOIN tracks t ON a.album_id = t.album_id
+GROUP BY a.title;
+
+-- 4. Все исполнители, которые не выпустили альбомы в 2020 году
+SELECT ar.name AS artist
+FROM artists ar
+WHERE ar.artist_id NOT IN (
+    SELECT aa.artist_id
+    FROM artist_album aa
+    JOIN albums a ON aa.album_id = a.album_id
+    WHERE a.release_year = 2020
+);
+
+-- 5. Названия сборников, в которых присутствует конкретный исполнитель (выберите его сами)
+-- Для примера, выберем исполнителя с artist_id = 1
+SELECT DISTINCT c.title AS collection
+FROM collections c
+JOIN collection_track ct ON c.collection_id = ct.collection_id
+JOIN tracks t ON ct.track_id = t.track_id
+JOIN albums a ON t.album_id = a.album_id
+JOIN artist_album aa ON a.album_id = aa.album_id
+WHERE aa.artist_id = 1;
+
 -- 5. Название треков, которые содержат слово «мой» или «my».
 SELECT title
 FROM tracks
